@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace Fluent
 {
-    public class ProcessCommunication
+    public class ProcessCommunicationServer
     {
         public int BufferSize { get; set; }
 
@@ -14,21 +14,21 @@ namespace Fluent
 
         private byte[] Buffer { get; set; }
 
-        private NamedPipeServerStream ServerStream { get; set; }
+        private NamedPipeServerStream Stream { get; set; }
 
-        public ProcessCommunication(string pipeName, Action<byte[]> callback, int bufferSize = 1048576)
+        public ProcessCommunicationServer(string pipeName, Action<byte[]> callback, int bufferSize = 1048576)
         {
             this.PipeName = pipeName;
             this.BufferSize = bufferSize;
             this.Callback = callback;
 
             Buffer = new byte[BufferSize];
-            ServerStream = new NamedPipeServerStream(PipeName, PipeDirection.In, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+            Stream = new NamedPipeServerStream(PipeName, PipeDirection.In, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
         }
 
-        public ProcessCommunication Init()
+        public ProcessCommunicationServer Init()
         {
-            ServerStream.BeginWaitForConnection(this.ConnectionCallback, this);
+            Stream.BeginWaitForConnection(this.ConnectionCallback, this);
             return this;
         }
 
@@ -36,14 +36,14 @@ namespace Fluent
         {
             var pipeServer = (dynamic)ar.AsyncState;
 
-            if (ServerStream.IsConnected)
+            if (Stream.IsConnected)
             {
                 if (!ar.IsCompleted)
                 {
                     throw new Exception($"Package larger than the system cache: {BufferSize} bytes");
                 }
 
-                int received = ServerStream.EndRead(ar);
+                int received = Stream.EndRead(ar);
                 var array = new byte[received];
                 Array.Copy(pipeServer.Buffer, array, received);
 
@@ -59,20 +59,21 @@ namespace Fluent
         private void ConnectionCallback(IAsyncResult ar)
         {
             var pipeServer = (dynamic)ar.AsyncState;
-            ServerStream.EndWaitForConnection(ar);
+            Stream.EndWaitForConnection(ar);
             RestartConnection();
         }
 
         private void RestartConnection()
         {
-            if (ServerStream.IsConnected)
+            if (Stream.IsConnected)
             {
-                ServerStream.BeginRead(Buffer, 0, BufferSize, this.ReadCallback, this);
+                Stream.BeginRead(Buffer, 0, BufferSize, this.ReadCallback, this);
             }
             else
             {
-                ServerStream.BeginWaitForConnection(this.ConnectionCallback, this);
+                Stream.BeginWaitForConnection(this.ConnectionCallback, this);
             }
         }
     }
+
 }
