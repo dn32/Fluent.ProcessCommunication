@@ -7,9 +7,10 @@ namespace Fluent
     public class ProcessCommunicationClient
     {
         private NamedPipeClientStream Stream { get; set; }
-
+        public string PipeName { get; set; }
         public ProcessCommunicationClient(string pipeName)
         {
+            PipeName = pipeName;
             this.Stream = new NamedPipeClientStream(".", pipeName, PipeDirection.Out, PipeOptions.Asynchronous);
         }
 
@@ -20,7 +21,7 @@ namespace Fluent
             return true;
         }
 
-        public bool Post(string value)
+        public bool Post(string json)
         {
             if (!this.Stream.IsConnected)
             {
@@ -30,7 +31,7 @@ namespace Fluent
                 }
             }
 
-            byte[] buffer = Encoding.UTF8.GetBytes(value);
+            byte[] buffer = Encoding.UTF8.GetBytes(json);
             this.Stream.BeginWrite(buffer, 0, buffer.Length, this.SendCallback, this.Stream);
             return true;
         }
