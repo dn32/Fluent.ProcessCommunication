@@ -23,7 +23,7 @@ namespace Fluent
             this.Callback = callback;
 
             Buffer = new byte[BufferSize];
-            Stream = new NamedPipeServerStream(PipeName, PipeDirection.In, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+            Stream = new NamedPipeServerStream(PipeName, PipeDirection.In, 100, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
         }
 
         public ProcessCommunicationServer Init()
@@ -46,14 +46,15 @@ namespace Fluent
                 int received = Stream.EndRead(ar);
                 var array = new byte[received];
                 Array.Copy(pipeServer.Buffer, array, received);
+                pipeServer.Buffer = new byte[BufferSize];
 
                 if (array.Length != 0)
                 {
                     ThreadPool.QueueUserWorkItem(_ => { this.Callback(array); });
                 }
-
-                RestartConnection();
             }
+
+            RestartConnection();
         }
 
         private void ConnectionCallback(IAsyncResult ar)
@@ -71,7 +72,10 @@ namespace Fluent
             }
             else
             {
-                Stream.BeginWaitForConnection(this.ConnectionCallback, this);
+
+                Stream = new NamedPipeServerStream(PipeName, PipeDirection.In, 100, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+
+                //Stream.BeginWaitForConnection(this.ConnectionCallback, this);
             }
         }
     }
