@@ -4,8 +4,15 @@ using System.Threading.Tasks;
 
 namespace Fluent.ProcessCommunication
 {
-    public partial class ProcessCommunicationPost
+    public class ProcessCommunicationPost
     {
+        public string Cliente { get; set; }
+
+        public ProcessCommunicationPost(string cliente)
+        {
+            Cliente = cliente;
+        }
+
         public void PostAsync(object content, Action<Package> callback, bool useJson = true)
         {
             var bytes = useJson ? JsonConvert.SerializeObject(content) : (object)Util.ToByteArray(content);
@@ -17,8 +24,8 @@ namespace Fluent.ProcessCommunication
             };
 
             var json = JsonConvert.SerializeObject(package);
-            new ProcessCommunicationServer("callback-" + package.TransportKey, callback).Init();
-            new ProcessCommunicationClient("post").Post(json);
+            new ProcessCommunicationServer($"callback-{Cliente}-{package.TransportKey}", Cliente, callback).Init();
+            new ProcessCommunicationClient($"post-{Cliente}").Post(json);
         }
 
         public void Response(string transportKey, object content, bool useJson = true)
@@ -32,10 +39,10 @@ namespace Fluent.ProcessCommunication
             };
 
             var json = JsonConvert.SerializeObject(package);
-            new ProcessCommunicationClient("callback-" + transportKey).Post(json);
+            new ProcessCommunicationClient($"callback-{Cliente}-{transportKey}").Post(json);
         }
 
-        public T Post<T>(object obj, int timeOut = 1000, bool useJson = true)
+        public object Post(Type returnType, object obj, int timeOut = 1000, bool useJson = true)
         {
             bool rxOk = false;
             Package package = null;
@@ -53,13 +60,18 @@ namespace Fluent.ProcessCommunication
             task.Wait(timeOut);
             if (task.IsCompleted)
             {
-                var objRet = package.UseJson ? JsonConvert.DeserializeObject<T>((string)package.Content) : Util.FromByteArray<T>((byte[])package.Content);
+                var objRet = package.UseJson ? JsonConvert.DeserializeObject((string)package.Content, returnType) : Util.FromByteArray((byte[])package.Content);
                 return objRet;
             }
             else
             {
-                return default(T);
+                return null;
             }
+        }
+
+        public T Post<T>(object obj, int timeOut = 1000, bool useJson = true)
+        {
+            return (T)Post(typeof(T), obj, timeOut, useJson);
         }
     }
 }

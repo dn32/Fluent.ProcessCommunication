@@ -7,11 +7,11 @@ namespace Fluent
     public class ProcessCommunicationClient
     {
         private NamedPipeClientStream Stream { get; set; }
-        public string PipeName { get; set; }
-        public ProcessCommunicationClient(string pipeName)
+        public string nome_da_rota { get; set; }
+        public ProcessCommunicationClient(string nome_da_rota)
         {
-            PipeName = pipeName;
-            this.Stream = new NamedPipeClientStream(".", pipeName, PipeDirection.Out, PipeOptions.Asynchronous);
+            this.nome_da_rota = nome_da_rota;
+            this.Stream = new NamedPipeClientStream(".", this.nome_da_rota, PipeDirection.Out, PipeOptions.Asynchronous);
         }
 
         public bool Connect(int timeout = 1000)

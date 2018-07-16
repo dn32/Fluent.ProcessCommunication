@@ -17,15 +17,17 @@ namespace Fluent.ProcessCommunication
             }
         }
 
-        internal static T FromByteArray<T>(byte[] data)
+        internal static object FromByteArray(byte[] data)
         {
             if (data == null)
-                return default(T);
+            {
+                return null;
+            }
+
             var bf = new BinaryFormatter();
             using (MemoryStream ms = new MemoryStream(data))
             {
-                object obj = bf.Deserialize(ms);
-                return (T)obj;
+                return bf.Deserialize(ms);
             }
         }
     }

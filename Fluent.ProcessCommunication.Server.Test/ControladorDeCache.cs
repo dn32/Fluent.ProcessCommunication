@@ -24,7 +24,9 @@ namespace Fluent.ProcessCommunication.Server.Test
                 process.ProcessCommunicationPost.Response(pacote.TransportKey, obj);
             }
 
-            process = new ProcessCommunicationServer("post", callback);
+            var cliente = "Cliente-de-teste";
+
+            process = new ProcessCommunicationServer($"post-{cliente}", cliente,  callback);
             process.Init();
 
             Console.ReadKey();

@@ -14,7 +14,7 @@ namespace Fluent
     {
         public int BufferSize { get; set; }
 
-        public string PipeName { get; set; }
+        public string nome_da_rota { get; set; }
 
         public Action<Package> Callback { get; set; }
 
@@ -36,15 +36,15 @@ namespace Fluent
             }
         }
 
-        public ProcessCommunicationServer(string pipeName, Action<Package> callback, int bufferSize = 1048576)
+        public ProcessCommunicationServer(string nome_da_rota, string cliente, Action<Package> callback, int bufferSize = 1048576)
         {
-            this.PipeName = pipeName;
+            this.nome_da_rota = nome_da_rota;
             this.BufferSize = bufferSize;
             this.Callback = callback;
-            ProcessCommunicationPost = new ProcessCommunicationPost();
+            ProcessCommunicationPost = new ProcessCommunicationPost(cliente);
 
             Buffer = new byte[BufferSize];
-            Stream = new NamedPipeServerStream(PipeName, PipeDirection.In, 100, PipeTransmissionMode.Message, PipeOptions.Asynchronous);
+            Stream = new NamedPipeServerStream(this.nome_da_rota, PipeDirection.In, 100, PipeTransmissionMode.Message, PipeOptions.Asynchronous);
         }
 
         public ProcessCommunicationServer Init()
@@ -92,7 +92,7 @@ namespace Fluent
             }
             else
             {
-                Stream = new NamedPipeServerStream(PipeName, PipeDirection.In, 100, PipeTransmissionMode.Message, PipeOptions.Asynchronous);
+                Stream = new NamedPipeServerStream(nome_da_rota, PipeDirection.In, 100, PipeTransmissionMode.Message, PipeOptions.Asynchronous);
                 Stream.BeginWaitForConnection(this.ConnectionCallback, this);
             }
         }

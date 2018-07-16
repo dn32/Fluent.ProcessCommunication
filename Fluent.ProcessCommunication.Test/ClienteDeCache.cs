@@ -13,7 +13,7 @@ namespace Fluent.ProcessCommunication.Test
 
             while (true)
             {
-                var retorno = new ProcessCommunicationPost().Post<RetornoDeCadastroDeCache>(cache);
+                var retorno = new ProcessCommunicationPost("Cliente-de-teste").Post<RetornoDeCadastroDeCache>(cache);
                 var json = JsonConvert.SerializeObject(retorno);
                 Console.WriteLine(json);
                 Console.ReadKey();
