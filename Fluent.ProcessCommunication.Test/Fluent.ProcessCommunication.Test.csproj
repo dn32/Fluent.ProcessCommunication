@@ -13,4 +13,10 @@
     <ProjectReference Include="..\Fluent.ProcessCommunication\Fluent.ProcessCommunication.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="System.Core">
+      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6\System.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
