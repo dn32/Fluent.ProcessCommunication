@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net461;net45</TargetFrameworks>
-    <Version>2.1.2</Version>
+    <Version>2.1.3</Version>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>Fluent.ProcessCommunication.snk</AssemblyOriginatorKeyFile>
     <Authors>Marcelo Vieira de Souza</Authors>

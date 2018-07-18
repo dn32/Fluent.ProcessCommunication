@@ -65,7 +65,7 @@ namespace Fluent.ProcessCommunication
             }
             else
             {
-                return new OperationReturn(eOperationReturn.TIMEOUT);
+                return null;// new OperationReturn(eOperationReturn.TIMEOUT);
             }
         }
 

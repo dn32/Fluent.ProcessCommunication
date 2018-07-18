@@ -4,6 +4,6 @@
     {
         TIMEOUT = 1,
         CONNECTION_TIMEOUT = 1,
-        SUCESS = 2
+        SUCCESS = 2
     }
 }

@@ -7,26 +7,29 @@ namespace Fluent.ProcessCommunication.Server.Test
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Servidor iniciando!");
+            Console.WriteLine("Server started!");
 
             ProcessCommunicationServer process = null;
 
-            void callback(Package pacote)
+            // callback is called whenever the client sends a message to the server
+            void callback(Package package)
             {
-                var conteudo = JsonConvert.DeserializeObject<CadastroDeCache>((string)pacote.Content);
-                
-                // - ARQUI É FEITO O TRATAMENTO DA OPERAÇÃO SOLICITADA
+                // content is the content of the message sent by the client
+                var content = JsonConvert.DeserializeObject<CadastroDeCache>((string)package.Content);
+
+                // Here you treat what you want when you receive the request
                 var obj = new RetornoDeCadastroDeCache();
-                obj.Conteudo = conteudo.Conteudo;
+                obj.Conteudo = content.Conteudo;
                 obj.Status = "ok";
 
-                // - AQUI É ENTREGUE A RESPOSTA PARA O SOLICITANTE
-                process.ProcessCommunicationPost.Response(pacote.TransportKey, obj);
+
+                // You deliver the customer feedback here
+                process.ProcessCommunicationPost.Response(package.TransportKey, obj);
             }
 
-            var cliente = "Cliente-de-teste";
+            var cliente = "test-client";
 
-            process = new ProcessCommunicationServer($"post-{cliente}", cliente,  callback);
+            process = new ProcessCommunicationServer($"post-{cliente}", cliente, callback);
             process.Init();
 
             Console.ReadKey();
