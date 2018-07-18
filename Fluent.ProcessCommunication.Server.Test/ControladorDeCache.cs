@@ -17,7 +17,7 @@ namespace Fluent.ProcessCommunication.Server.Test
                 
                 // - ARQUI É FEITO O TRATAMENTO DA OPERAÇÃO SOLICITADA
                 var obj = new RetornoDeCadastroDeCache();
-                obj.Identificador = conteudo.Identificador;
+                obj.Conteudo = conteudo.Conteudo;
                 obj.Status = "ok";
 
                 // - AQUI É ENTREGUE A RESPOSTA PARA O SOLICITANTE

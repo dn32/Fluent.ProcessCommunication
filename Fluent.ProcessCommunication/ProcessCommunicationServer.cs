@@ -36,12 +36,13 @@ namespace Fluent
             }
         }
 
-        public ProcessCommunicationServer(string nome_da_rota, string cliente, Action<Package> callback, int bufferSize = 1048576)
+        public ProcessCommunicationServer(string nome_da_rota, string cliente, Action<Package> callback, int bufferSize = 1024)
         {
             this.nome_da_rota = nome_da_rota;
             this.BufferSize = bufferSize;
             this.Callback = callback;
             ProcessCommunicationPost = new ProcessCommunicationPost(cliente);
+            Conteudo = new StringBuilder();
 
             Buffer = new byte[BufferSize];
             Stream = new NamedPipeServerStream(this.nome_da_rota, PipeDirection.In, 100, PipeTransmissionMode.Message, PipeOptions.Asynchronous);
@@ -53,24 +54,31 @@ namespace Fluent
             return this;
         }
 
+        public StringBuilder Conteudo { get; set; }
+
         private void ReadCallback(IAsyncResult ar)
         {
             var pipeServer = (dynamic)ar.AsyncState;
 
+            int received = Stream.EndRead(ar);
+            var array = new byte[received];
+            Array.Copy(pipeServer.Buffer, array, received);
+            pipeServer.Buffer = new byte[BufferSize];
+
+            if (array.Length != 0)
+            {
+                var content = Encoding.UTF8.GetString(array);
+                Conteudo.Append(content);
+            }
+
             if (Stream.IsConnected && Stream.IsMessageComplete)
             {
-                int received = Stream.EndRead(ar);
-                var array = new byte[received];
-                Array.Copy(pipeServer.Buffer, array, received);
-                pipeServer.Buffer = new byte[BufferSize];
-
-
-                if (array.Length != 0)
+                if (Conteudo.Length != 0)
                 {
-                    var content = Encoding.UTF8.GetString(array);
-                    var package = JsonConvert.DeserializeObject<Package>(content);
+                    var package = JsonConvert.DeserializeObject<Package>(Conteudo.ToString());
                     ThreadPool.QueueUserWorkItem(_ => { this.Callback(package); });
                     Stream.Close();
+                    Conteudo.Clear();
                 }
             }
 

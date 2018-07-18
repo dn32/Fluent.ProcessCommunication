@@ -65,13 +65,13 @@ namespace Fluent.ProcessCommunication
             }
             else
             {
-                return null;
+                return new OperationReturn(eOperationReturn.TIMEOUT);
             }
         }
 
-        public T Post<T>(object obj, int timeOut = 1000, bool useJson = true)
+        public T Post<T>(object obj, int timeOut = 1000, bool useJson = true) where T : class
         {
-            return (T)Post(typeof(T), obj, timeOut, useJson);
+            return Post(typeof(T), obj, timeOut, useJson) as T;
         }
     }
 }
