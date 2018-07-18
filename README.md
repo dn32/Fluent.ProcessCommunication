@@ -14,16 +14,16 @@
             // callback is called whenever the client sends a message to the server
             void callback(Package package)
             {
-                //Content is the content of the message sent by the client
+                // content is the content of the message sent by the client
                 var content = JsonConvert.DeserializeObject<CadastroDeCache>((string)package.Content);
 
-                // - Here you treat what you want when you receive the request
+                // Here you treat what you want when you receive the request
                 var obj = new RetornoDeCadastroDeCache();
                 obj.Conteudo = content.Conteudo;
                 obj.Status = "ok";
 
 
-                // - Você entrega a respósta ao cliente aqui
+                // You deliver the customer feedback here
                 process.ProcessCommunicationPost.Response(package.TransportKey, obj);
             }
 
