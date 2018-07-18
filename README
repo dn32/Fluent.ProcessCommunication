@@ -1,33 +1,39 @@
-# Fluent.Task
+# Fluent.ProcessCommunication
 
-#### Executing a Looped Activity
+#### Server operations
 
 ```C++
-using System;
-
-namespace Fluent.Task.Test
-{
-    public class Program
+    class Program
     {
         static void Main(string[] args)
         {
-            var taskScheduler = TaskScheduler.Instance().Start();
+            Console.WriteLine("Server started!");
 
-            Schedule
-             .Instance(ShowNow)
-             .SetDateTime(DayOfWeek.Monday, hour: 8)
-             .SetStartImmediately()
-             .SetParameter("test parameter")
-             .RunLoop(taskScheduler);
+            ProcessCommunicationServer process = null;
+
+            // callback is called whenever the client sends a message to the server
+            void callback(Package package)
+            {
+                //Content is the content of the message sent by the client
+                var content = JsonConvert.DeserializeObject<CadastroDeCache>((string)package.Content);
+
+                // - Here you treat what you want when you receive the request
+                var obj = new RetornoDeCadastroDeCache();
+                obj.Conteudo = content.Conteudo;
+                obj.Status = "ok";
+
+
+                // - Você entrega a respósta ao cliente aqui
+                process.ProcessCommunicationPost.Response(package.TransportKey, obj);
+            }
+
+            var cliente = "test-client";
+
+            process = new ProcessCommunicationServer($"post-{cliente}", cliente,  callback);
+            process.Init();
 
             Console.ReadKey();
         }
-
-        private static void ShowNow(object parameter)
-        {
-            Console.WriteLine($"Now is {DateTime.Now} {parameter}");
-        }
     }
-}
 
 ```
