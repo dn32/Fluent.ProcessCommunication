@@ -7,11 +7,11 @@ namespace Fluent
     public class ProcessCommunicationClient
     {
         private NamedPipeClientStream Stream { get; set; }
-        public string nome_da_rota { get; set; }
-        public ProcessCommunicationClient(string nome_da_rota)
+        public string RouteName { get; set; }
+        public ProcessCommunicationClient(string routeName)
         {
-            this.nome_da_rota = nome_da_rota;
-            this.Stream = new NamedPipeClientStream(".", this.nome_da_rota, PipeDirection.Out, PipeOptions.Asynchronous);
+            this.RouteName = routeName;
+            this.Stream = new NamedPipeClientStream(".", this.RouteName, PipeDirection.Out, PipeOptions.Asynchronous);
         }
 
         public bool Connect(int timeout = 1000)
@@ -21,7 +21,7 @@ namespace Fluent
             return true;
         }
 
-        public bool Post(string json)
+        public bool Post(string json, bool useCallBack = true)
         {
             if (!this.Stream.IsConnected)
             {

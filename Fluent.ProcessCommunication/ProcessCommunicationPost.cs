@@ -13,18 +13,34 @@ namespace Fluent.ProcessCommunication
             Cliente = cliente;
         }
 
-        public void PostAsync(object content, Action<Package> callback, bool useJson = true)
+        private void PostAsync(object content, Action<Package> callback, bool useJson = true)
         {
             var bytes = useJson ? JsonConvert.SerializeObject(content) : (object)Util.ToByteArray(content);
             var package = new Package
             {
                 Content = bytes,
                 TransportKey = Guid.NewGuid().ToString(),
-                UseJson = useJson
+                UseJson = useJson,
+                UseResponse = true
             };
 
             var json = JsonConvert.SerializeObject(package);
             new ProcessCommunicationServer($"callback-{Cliente}-{package.TransportKey}", Cliente, callback).Init();
+            new ProcessCommunicationClient($"post-{Cliente}").Post(json);
+        }
+
+        public void PostAsync(object content, bool useJson = true)
+        {
+            var bytes = useJson ? JsonConvert.SerializeObject(content) : (object)Util.ToByteArray(content);
+            var package = new Package
+            {
+                Content = bytes,
+                TransportKey = Guid.NewGuid().ToString(),
+                UseJson = useJson,
+                UseResponse = false
+            };
+
+            var json = JsonConvert.SerializeObject(package);
             new ProcessCommunicationClient($"post-{Cliente}").Post(json);
         }
 
@@ -39,10 +55,14 @@ namespace Fluent.ProcessCommunication
             };
 
             var json = JsonConvert.SerializeObject(package);
-            new ProcessCommunicationClient($"callback-{Cliente}-{transportKey}").Post(json);
+            try
+            {
+                new ProcessCommunicationClient($"callback-{Cliente}-{transportKey}").Post(json);
+            }
+            catch (TimeoutException) { }
         }
 
-        public object Post(Type returnType, object obj, int timeOut = 1000, bool useJson = true)
+        public object Post(Type returnType, object obj, int timeOut = 10000, bool useJson = true)
         {
             bool rxOk = false;
             Package package = null;
@@ -65,13 +85,19 @@ namespace Fluent.ProcessCommunication
             }
             else
             {
-                return null;// new OperationReturn(eOperationReturn.TIMEOUT);
+                throw new TimeoutException();
             }
         }
 
-        public T Post<T>(object obj, int timeOut = 1000, bool useJson = true) where T : class
+        public T Post<T>(object obj, int timeOut = 10000, bool useJson = true)
         {
-            return Post(typeof(T), obj, timeOut, useJson) as T;
+            var ret = Post(typeof(T), obj, timeOut, useJson);
+            if (ret == null)
+            {
+                return default(T);
+            }
+
+            return (T)ret;
         }
     }
 }

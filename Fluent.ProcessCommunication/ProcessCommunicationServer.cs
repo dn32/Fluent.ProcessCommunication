@@ -24,6 +24,8 @@ namespace Fluent
 
         public ProcessCommunicationPost ProcessCommunicationPost { get; set; }
 
+        public bool UseCallback { get; set; }
+
         private byte[] ToByteArray<T>(T obj)
         {
             if (obj == null)
