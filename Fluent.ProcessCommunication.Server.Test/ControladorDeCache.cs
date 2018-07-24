@@ -1,9 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using Fluent.ProcessCommunication.Test;
+using Newtonsoft.Json;
 using System;
 
 namespace Fluent.ProcessCommunication.Server.Test
 {
-    class Program
+    public class Program
     {
         static void Main(string[] args)
         {
@@ -15,21 +16,19 @@ namespace Fluent.ProcessCommunication.Server.Test
             void callback(Package package)
             {
                 // content is the content of the message sent by the client
-                var content = JsonConvert.DeserializeObject<CadastroDeCache>((string)package.Content);
+                var content = JsonConvert.DeserializeObject<CacheRecord>((string)package.Content);
+                Console.WriteLine(content.Content);
 
                 // Here you treat what you want when you receive the request
-                var obj = new RetornoDeCadastroDeCache();
-                obj.Conteudo = content.Conteudo;
-                obj.Status = "ok";
-
+                var ret = true;
 
                 // You deliver the customer feedback here
-                process.ProcessCommunicationPost.Response(package.TransportKey, obj);
+                process.ProcessCommunicationPost.Response(package.TransportKey, ret);
             }
 
-            var cliente = "test-client";
+            var client = "test-client";
 
-            process = new ProcessCommunicationServer($"post-{cliente}", cliente, callback);
+            process = new ProcessCommunicationServer($"post-{client}", client, callback);
             process.Init();
 
             Console.ReadKey();

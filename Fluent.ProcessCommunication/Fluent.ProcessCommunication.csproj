@@ -7,6 +7,11 @@
     <AssemblyOriginatorKeyFile>Fluent.ProcessCommunication.snk</AssemblyOriginatorKeyFile>
     <Authors>Marcelo Vieira de Souza</Authors>
     <Company>dn32</Company>
+    <PackageProjectUrl>https://github.com/dn32/Fluent.ProcessCommunication</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/dn32/Fluent.ProcessCommunication/blob/master/LICENSE</PackageLicenseUrl>
+    <Copyright>dn32</Copyright>
+    <Description>Fluent.ProcessCommunication</Description>
+    <RepositoryUrl>https://github.com/dn32/Fluent.ProcessCommunication</RepositoryUrl>
   </PropertyGroup>
   
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
