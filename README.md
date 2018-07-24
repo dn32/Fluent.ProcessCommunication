@@ -57,6 +57,7 @@ namespace Fluent.ProcessCommunication.Test
     {
         static void Main(string[] args)
         {
+            // This is the content I want to send
             var cache = new CacheRecord();
             cache.Id = Guid.NewGuid().ToString();
             cache.Content = "content here";
