@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net461;net45</TargetFrameworks>
-    <Version>2.5.0</Version>
+    <Version>2.5.2</Version>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>Fluent.ProcessCommunication.snk</AssemblyOriginatorKeyFile>
     <Authors>Marcelo Vieira de Souza</Authors>
@@ -12,6 +12,7 @@
     <Copyright>dn32</Copyright>
     <Description>Fluent.ProcessCommunication</Description>
     <RepositoryUrl>https://github.com/dn32/Fluent.ProcessCommunication</RepositoryUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
   
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">

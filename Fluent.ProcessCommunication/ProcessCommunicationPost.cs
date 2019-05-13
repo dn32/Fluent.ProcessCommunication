@@ -7,10 +7,17 @@ namespace Fluent.ProcessCommunication
     public class ProcessCommunicationPost
     {
         public string Cliente { get; set; }
+        public string AditionalInformation { get; set; }
 
         public ProcessCommunicationPost(string cliente)
         {
             Cliente = cliente;
+        }
+
+        public ProcessCommunicationPost(string cliente, string aditionalInformation)
+        {
+            Cliente = cliente;
+            AditionalInformation = aditionalInformation;
         }
 
         private void PostAsync(object content, Action<Package> callback, bool useJson = true)
@@ -21,7 +28,8 @@ namespace Fluent.ProcessCommunication
                 Content = bytes,
                 TransportKey = Guid.NewGuid().ToString(),
                 UseJson = useJson,
-                UseResponse = true
+                UseResponse = true,
+                AditionalInformation = AditionalInformation
             };
 
             var json = JsonConvert.SerializeObject(package);
@@ -37,7 +45,8 @@ namespace Fluent.ProcessCommunication
                 Content = bytes,
                 TransportKey = Guid.NewGuid().ToString(),
                 UseJson = useJson,
-                UseResponse = false
+                UseResponse = false,
+                AditionalInformation = AditionalInformation
             };
 
             var json = JsonConvert.SerializeObject(package);
