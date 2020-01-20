@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Fluent.ProcessCommunication;
+using System;
 using System.IO.Pipes;
 using System.Text;
 
@@ -21,7 +22,7 @@ namespace Fluent
             return true;
         }
 
-        public bool Post(string json, bool useCallBack = true)
+        public bool Post(object obj)
         {
             if (!this.Stream.IsConnected)
             {
@@ -31,8 +32,8 @@ namespace Fluent
                 }
             }
 
-            byte[] buffer = Encoding.UTF8.GetBytes(json);
-            this.Stream.BeginWrite(buffer, 0, buffer.Length, this.SendCallback, this.Stream);
+            var buffer = Util.ToByteArray(obj);
+            Stream.BeginWrite(buffer, 0, buffer.Length, this.SendCallback, this.Stream);
             return true;
         }
 

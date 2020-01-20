@@ -1,12 +1,8 @@
 ﻿using Fluent.ProcessCommunication;
-using Newtonsoft.Json;
 using System;
-using System.IO;
+using System.Collections.Generic;
 using System.IO.Pipes;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using System.Threading;
-using static Fluent.ProcessCommunication.ProcessCommunicationPost;
 
 namespace Fluent
 {
@@ -26,25 +22,13 @@ namespace Fluent
 
         public bool UseCallback { get; set; }
 
-        private byte[] ToByteArray<T>(T obj)
-        {
-            if (obj == null)
-                return null;
-            BinaryFormatter bf = new BinaryFormatter();
-            using (MemoryStream ms = new MemoryStream())
-            {
-                bf.Serialize(ms, obj);
-                return ms.ToArray();
-            }
-        }
-
-        public ProcessCommunicationServer(string nome_da_rota, string cliente, Action<Package> callback, int bufferSize = 1024)
+        public ProcessCommunicationServer(string nome_da_rota, string cliente, Action<Package> callback, int bufferSize = 102400)
         {
             this.nome_da_rota = nome_da_rota;
             this.BufferSize = bufferSize;
             this.Callback = callback;
             ProcessCommunicationPost = new ProcessCommunicationPost(cliente);
-            Conteudo = new StringBuilder();
+            ContentByte = new List<byte>();
 
             Buffer = new byte[BufferSize];
             Stream = new NamedPipeServerStream(this.nome_da_rota, PipeDirection.In, 100, PipeTransmissionMode.Message, PipeOptions.Asynchronous);
@@ -56,7 +40,7 @@ namespace Fluent
             return this;
         }
 
-        public StringBuilder Conteudo { get; set; }
+        public List<byte> ContentByte { get; set; }
 
         private void ReadCallback(IAsyncResult ar)
         {
@@ -69,18 +53,17 @@ namespace Fluent
 
             if (array.Length != 0)
             {
-                var content = Encoding.UTF8.GetString(array);
-                Conteudo.Append(content);
+                ContentByte.AddRange(array);
             }
 
             if (Stream.IsConnected && Stream.IsMessageComplete)
             {
-                if (Conteudo.Length != 0)
+                if (ContentByte.Count != 0)
                 {
-                    var package = JsonConvert.DeserializeObject<Package>(Conteudo.ToString());
-                    ThreadPool.QueueUserWorkItem(_ => { this.Callback(package); });
+                    var package = Util.FromByteArray(ContentByte.ToArray()) as Package;
+                    ThreadPool.QueueUserWorkItem(_ => Callback(package));
                     Stream.Close();
-                    Conteudo.Clear();
+                    ContentByte.Clear();
                 }
             }
 

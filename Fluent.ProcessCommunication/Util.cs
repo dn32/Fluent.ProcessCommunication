@@ -5,7 +5,7 @@ namespace Fluent.ProcessCommunication
 {
     internal static class Util
     {
-        internal static byte[] ToByteArray<T>(T obj)
+        internal static byte[] ToByteArray(object obj)
         {
             if (obj == null)
                 return null;

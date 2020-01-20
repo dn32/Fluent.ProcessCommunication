@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Threading.Tasks;
 
 namespace Fluent.ProcessCommunication
@@ -20,58 +19,49 @@ namespace Fluent.ProcessCommunication
             AditionalInformation = aditionalInformation;
         }
 
-        private void PostAsync(object content, Action<Package> callback, bool useJson = true)
+        private void PostAsync(object content, Action<Package> callback)
         {
-            var bytes = useJson ? JsonConvert.SerializeObject(content) : (object)Util.ToByteArray(content);
             var package = new Package
             {
-                Content = bytes,
+                Content = content,
                 TransportKey = Guid.NewGuid().ToString(),
-                UseJson = useJson,
                 UseResponse = true,
                 AditionalInformation = AditionalInformation
             };
 
-            var json = JsonConvert.SerializeObject(package);
             new ProcessCommunicationServer($"callback-{Cliente}-{package.TransportKey}", Cliente, callback).Init();
-            new ProcessCommunicationClient($"post-{Cliente}").Post(json);
+            new ProcessCommunicationClient($"post-{Cliente}").Post(package);
         }
 
-        public void PostAsync(object content, bool useJson = true)
+        public void PostAsync(object content)
         {
-            var bytes = useJson ? JsonConvert.SerializeObject(content) : (object)Util.ToByteArray(content);
             var package = new Package
             {
-                Content = bytes,
+                Content = content,
                 TransportKey = Guid.NewGuid().ToString(),
-                UseJson = useJson,
                 UseResponse = false,
                 AditionalInformation = AditionalInformation
             };
 
-            var json = JsonConvert.SerializeObject(package);
-            new ProcessCommunicationClient($"post-{Cliente}").Post(json);
+            new ProcessCommunicationClient($"post-{Cliente}").Post(package);
         }
 
-        public void Response(string transportKey, object content, bool useJson = true)
+        public void Response(string transportKey, object content)
         {
-            var bytes = useJson ? JsonConvert.SerializeObject(content) : (object)Util.ToByteArray(content);
             var package = new Package
             {
-                Content = bytes,
-                TransportKey = Guid.NewGuid().ToString(),
-                UseJson = useJson
+                Content = content,
+                TransportKey = Guid.NewGuid().ToString()
             };
 
-            var json = JsonConvert.SerializeObject(package);
             try
             {
-                new ProcessCommunicationClient($"callback-{Cliente}-{transportKey}").Post(json);
+                new ProcessCommunicationClient($"callback-{Cliente}-{transportKey}").Post(package);
             }
             catch (TimeoutException) { }
         }
 
-        public object Post(Type returnType, object obj, int timeOut = 10000, bool useJson = true)
+        internal object PostInternal(object obj, int timeOut = 10000)
         {
             bool rxOk = false;
             Package package = null;
@@ -82,15 +72,14 @@ namespace Fluent.ProcessCommunication
                 package = _package;
             }
 
-            PostAsync(obj, callback, useJson);
+            PostAsync(obj, callback);
 
             var task = Task.Run(() => { while (!rxOk) ; });
 
             task.Wait(timeOut);
             if (task.IsCompleted)
             {
-                var objRet = package.UseJson ? JsonConvert.DeserializeObject((string)package.Content, returnType) : Util.FromByteArray((byte[])package.Content);
-                return objRet;
+                return package.Content;
             }
             else
             {
@@ -98,15 +87,15 @@ namespace Fluent.ProcessCommunication
             }
         }
 
-        public T Post<T>(object obj, int timeOut = 10000, bool useJson = true)
+        public Package Post(object obj, int timeOut = 10000)
         {
-            var ret = Post(typeof(T), obj, timeOut, useJson);
+            var ret = PostInternal(obj, timeOut);
             if (ret == null)
             {
-                return default(T);
+                return default;
             }
 
-            return (T)ret;
+            return (Package)ret;
         }
     }
 }

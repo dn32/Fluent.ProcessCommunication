@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Fluent.ProcessCommunication.Test
+namespace Fluent.ProcessCommunication.Test.Shared
 {
     [Serializable]
     public class CacheRecord

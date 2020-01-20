@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net461;net45</TargetFrameworks>
-    <Version>2.5.2</Version>
+    <Version>3.0.0</Version>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>Fluent.ProcessCommunication.snk</AssemblyOriginatorKeyFile>
     <Authors>Marcelo Vieira de Souza</Authors>
@@ -16,18 +16,13 @@
   </PropertyGroup>
   
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <Reference Include="System.Net" />
-    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
-
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
-    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
   </ItemGroup>
   
   <ItemGroup>
